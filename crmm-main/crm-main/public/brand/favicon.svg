@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Masar">
+<g transform="translate(0 0) scale(1.0)">
+  <rect width="120" height="120" rx="30" fill="#0B3B3C"/>
+  <path d="M31 90 V44 L60 72 L88 34" fill="none" stroke="#F7F5F0" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="88" cy="34" r="12" fill="#F4B63F" stroke="#0B3B3C" stroke-width="5"/>
+</g>
+</svg>

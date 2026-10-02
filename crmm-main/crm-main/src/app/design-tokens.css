@@ -1,0 +1,135 @@
+:root {
+  color-scheme: light;
+
+  --ink: #0b3b3c;
+  --amber: #f4b63f;
+  --paper: #f7f5f0;
+  --muted: #4c7c7a;
+  --tint: #e3eceb;
+  --tint-2: #cfe0de;
+  --neutral-0: #ffffff;
+  --neutral-50: var(--paper);
+  --neutral-100: var(--tint);
+  --neutral-200: var(--tint-2);
+  --neutral-300: #b8cdca;
+  --neutral-500: var(--muted);
+  --neutral-700: #285a59;
+  --neutral-900: var(--ink);
+
+  --brand: var(--ink);
+  --brand-hover: #082f30;
+  --brand-subtle: var(--tint);
+
+  --background: var(--paper);
+  --foreground: var(--neutral-900);
+  --surface: var(--neutral-0);
+  --surface-subtle: var(--neutral-100);
+  --ink-muted: var(--neutral-500);
+  --line: var(--neutral-200);
+  --brand-strong: var(--brand-hover);
+  --brand-soft: var(--brand-subtle);
+  --warning: #c2412d;
+  --warning-soft: #fbe9e6;
+  --danger: #c2412d;
+  --danger-soft: #fbe9e6;
+  --success: #2e7d5b;
+  --success-soft: #e7f3ed;
+  --info: #245c85;
+  --info-soft: #e7f1f8;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+
+  --font-latin: "Inter", sans-serif;
+  --font-latin-brand: "IBM Plex Sans", sans-serif;
+  --font-arabic: "IBM Plex Sans Arabic", sans-serif;
+  --font-stack: var(--font-arabic), var(--font-latin-brand), sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --type-caption: 12px;
+  --type-small: 14px;
+  --type-body: 16px;
+  --type-title: 24px;
+  --type-display: 32px;
+
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  --shadow-subtle: none;
+  --shadow-popover: none;
+  --overlay: rgb(11 59 60 / 32%);
+
+  --motion-press: 100ms;
+  --motion-hover: 160ms;
+  --motion-panel: 240ms;
+  --motion-page: 360ms;
+  --motion-highlight: 1200ms;
+  --motion-fast: var(--motion-hover);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-ease: var(--ease-standard);
+  --direction: 1;
+
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface);
+  --popover-foreground: var(--foreground);
+  --primary: var(--brand);
+  --primary-foreground: var(--neutral-0);
+  --secondary: var(--surface-subtle);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--surface-subtle);
+  --muted-foreground: var(--ink-muted);
+  --accent: var(--brand-soft);
+  --accent-foreground: var(--brand-strong);
+  --destructive: var(--danger);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand);
+  --radius: var(--radius-md);
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--neutral-0);
+  --sidebar-accent: var(--brand-soft);
+  --sidebar-accent-foreground: var(--brand-strong);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--ring);
+  --chart-1: var(--brand);
+  --chart-2: var(--neutral-500);
+  --chart-3: var(--neutral-300);
+  --chart-4: var(--neutral-700);
+  --chart-5: var(--neutral-200);
+}
+
+html[lang="en"] body {
+  font-family: var(--font-latin-brand), var(--font-arabic), sans-serif;
+}
+
+html[lang="ar"] body {
+  font-family: var(--font-arabic), var(--font-latin), sans-serif;
+}
+
+html[dir="rtl"] {
+  --direction: -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-press: 0ms;
+    --motion-hover: 0ms;
+    --motion-panel: 0ms;
+    --motion-page: 0ms;
+    --motion-highlight: 0ms;
+  }
+}
