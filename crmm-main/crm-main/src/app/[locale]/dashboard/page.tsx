@@ -139,9 +139,13 @@ export default async function DashboardPage({
     supabase.from("leads").select("*").eq("organization_id", membership.organization_id).order("created_at", {ascending: false}).limit(8),
     supabase.from("tasks").select("*").eq("organization_id", membership.organization_id).order("due_at", {ascending: true}).limit(8),
     supabase.from("leads").select("id", {count: "exact", head: true}).eq("organization_id", membership.organization_id).neq("status", "won").neq("status", "lost"),
-    supabase.from("tasks").select("id", {count: "exact", head: true}).eq("organization_id", membership.organization_id).is("completed_at", null).gte("due_at", todayStart.toISOString()).lt("due_at", tomorrowStart.toISOString()),
-    supabase.from("tasks").select("id", {count: "exact", head: true}).eq("organization_id", membership.organization_id).is("completed_at", null).lt("due_at", new Date().toISOString()),
-    supabase.from("tasks").select("id", {count: "exact", head: true}).eq("organization_id", membership.organization_id).not("completed_at", "is", null),
+      supabase.from("tasks").select("id", {count: "exact", head: true}).is("completed_at", null).gte("due_at", todayStart.toISOString()).lt("due_at", tomorrowStart.toISOString()),
+    isManager
+      ? supabase.from("tasks").select("id", {count: "exact", head: true}).is("completed_at", null).lt("due_at", new Date().toISOString())
+      : Promise.resolve({count: 0}),
+    isManager
+      ? supabase.from("tasks").select("id", {count: "exact", head: true}).not("completed_at", "is", null)
+      : Promise.resolve({count: 0}),
     supabase.from("notifications").select("*").eq("organization_id", membership.organization_id).eq("recipient_id", user.id).is("read_at", null).order("created_at", {ascending: false}).limit(5),
   ]);
 

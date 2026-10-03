@@ -1082,6 +1082,10 @@
   width: 100%;
 }
 
+.mobile-sign-out {
+  display: none;
+}
+
 .workspace-main {
   min-width: 0;
 }
@@ -2900,6 +2904,11 @@
 
   .workspace-sidebar .nav-count {
     display: none;
+  }
+
+  .workspace-sidebar .mobile-sign-out {
+    display: block;
+    min-width: 0;
   }
 
   .workspace-main {

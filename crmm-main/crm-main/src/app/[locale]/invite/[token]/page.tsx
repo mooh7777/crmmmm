@@ -2,12 +2,43 @@ import Link from "next/link";
 import {acceptCurrentSalesInvite, createAccountFromInvite, acceptSalesInvite, signOut} from "@/app/[locale]/actions";
 import {createClient} from "@/lib/supabase/server";
 
+const signupErrorMessages: Record<string, {arabic: string; english: string}> = {
+  "weak-password": {
+    arabic: "كلمة المرور ضعيفة حسب متطلبات النظام؛ جرّب كلمة أطول وتحتوي على حروف وأرقام.",
+    english: "This password is too weak. Try a longer password with a mix of letters and numbers.",
+  },
+  "password-length": {
+    arabic: "كلمة المرور يجب أن تكون ٨ أحرف على الأقل.",
+    english: "The password must be at least 8 characters.",
+  },
+  "invalid-email": {
+    arabic: "راجع صيغة البريد الإلكتروني وحاول مرة أخرى.",
+    english: "Check the email address format and try again.",
+  },
+  "email-exists": {
+    arabic: "هذا البريد مسجل بالفعل؛ استخدم نموذج تسجيل الدخول بالأسفل.",
+    english: "This email already has an account. Use the sign-in form below.",
+  },
+  "email-rate-limit": {
+    arabic: "تم تجاوز حد إرسال رسائل التأكيد. انتظر قليلًا أو اطلب من مسؤول التطبيق ضبط SMTP في Supabase.",
+    english: "The email confirmation rate limit was reached. Wait and retry, or ask the app administrator to configure Supabase SMTP.",
+  },
+  "email-disabled": {
+    arabic: "إنشاء الحسابات بالبريد متوقف في Supabase. اطلب من مسؤول التطبيق تفعيل تسجيل البريد.",
+    english: "Email signups are disabled in Supabase. Ask the app administrator to enable email signups.",
+  },
+  provider: {
+    arabic: "تعذر إنشاء الحساب أو إرسال رسالة التأكيد. اطلب من مسؤول التطبيق مراجعة سجلات Auth وإعداد SMTP في Supabase.",
+    english: "The account could not be created or its confirmation email sent. Ask the app administrator to check Supabase Auth logs and SMTP settings.",
+  },
+};
+
 export default async function SalesInvitePage({
   params,
   searchParams,
 }: {
   params: Promise<{locale: string; token: string}>;
-  searchParams: Promise<{error?: string; notice?: string}>;
+  searchParams: Promise<{error?: string; notice?: string; reason?: string}>;
 }) {
   const [{locale, token}, query, supabase] = await Promise.all([params, searchParams, createClient()]);
   const language = locale === "ar" ? "ar" : "en";
@@ -17,6 +48,7 @@ export default async function SalesInvitePage({
   const inviteError = query.error === "invite";
   const authError = query.error === "auth";
   const signupError = query.error === "signup";
+  const signupMessage = signupErrorMessages[query.reason ?? ""] ?? signupErrorMessages.provider;
 
   return (
     <main className="setup-screen">
@@ -31,7 +63,7 @@ export default async function SalesInvitePage({
         <p className="form-intro">{text("أنشئ حسابك أو سجّل الدخول لقبول الدعوة وفتح قائمة متابعات اليوم.", "Create an account or sign in to accept the invitation and open your Today follow-ups.")}</p>
         {inviteError && <p className="form-alert" role="alert">{text("رابط الدعوة غير صالح أو منتهي الصلاحية أو مستخدم من قبل.", "This invitation is invalid, expired, or already used.")}</p>}
         {authError && <p className="form-alert" role="alert">{text("تعذر تسجيل الدخول. لو دي أول مرة للشخص، استخدم نموذج حساب جديد بالأعلى. لو لديه حساب، تأكد من البريد الذي وصلته عليه الدعوة وكلمة المرور.", "Sign-in failed. If this is their first time, use the Create an account form above. Otherwise, check the invitation email address and password.")}</p>}
-        {signupError && <p className="form-alert" role="alert">{text("تعذر إنشاء الحساب. تأكد من البريد وكلمة المرور (٨ أحرف على الأقل). لو البريد مسجلًا من قبل، استخدم نموذج تسجيل الدخول بالأسفل.", "Could not create the account. Check the email and password (at least 8 characters). If this email already has an account, use the sign-in form below.")}</p>}
+        {signupError && <p className="form-alert" role="alert">{text(signupMessage.arabic, signupMessage.english)}</p>}
         {query.notice === "check-email" && <p className="form-success" role="status">{text("تحقق من بريدك لتأكيد الحساب وقبول الدعوة.", "Check your email to confirm your account and accept the invite.")}</p>}
 
         {user && <div className="invite-current-account">

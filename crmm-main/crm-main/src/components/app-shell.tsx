@@ -74,6 +74,7 @@ export async function AppShell({
           <Link className="nav-item" href={tasksHref}><Icon name="tasks" size={18} />{t("tasks")}<span className="nav-count">{numberFormat.format(todayTaskCount)}</span></Link>
           {(role === "owner" || role === "manager") && <Link aria-current={page === "pipeline" ? "page" : undefined} className={`nav-item${page === "pipeline" ? " nav-item-active" : ""}`} href={pipelineHref}><Icon name="reports" size={18} />{t("pipeline")}</Link>}
           {(role === "owner" || role === "manager") && <Link aria-current={page === "settings" ? "page" : undefined} className={`nav-item${page === "settings" ? " nav-item-active" : ""}`} href={settingsHref}><Icon name="settings" size={18} />{orgT("settings")}</Link>}
+          {!demo && <form action={signOut.bind(null, locale)} className="mobile-sign-out"><button className="nav-item sign-out-button" type="submit"><Icon className="icon-flip" name="logout" size={18} />{t("signOut")}</button></form>}
         </nav>
         <div className="sidebar-bottom">
           <div className="timezone-note"><Icon name="calendar" size={16} /><span>{organization.timezone}</span></div>

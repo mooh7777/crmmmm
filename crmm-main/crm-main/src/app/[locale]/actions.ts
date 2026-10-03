@@ -53,6 +53,15 @@ function getRawText(formData: FormData, key: string) {
   return typeof value === "string" ? value : "";
 }
 
+function getSignupFailureReason(code: string | undefined) {
+  if (code === "weak_password") return "weak-password";
+  if (code === "email_address_invalid") return "invalid-email";
+  if (code === "email_exists" || code === "user_already_exists") return "email-exists";
+  if (code === "over_email_send_rate_limit") return "email-rate-limit";
+  if (code === "email_provider_disabled") return "email-disabled";
+  return "provider";
+}
+
 function getSiteOrigin() {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (configured) return configured.replace(/\/$/, "");
@@ -181,7 +190,9 @@ export async function createAccountFromInvite(formData: FormData) {
   const token = getText(formData, "inviteToken");
   const email = getText(formData, "email");
   const password = getRawText(formData, "password");
-  if (token.length < 32 || !email || password.length < 8) redirect(`/${locale}/invite/${encodeURIComponent(token)}?error=signup`);
+  if (token.length < 32) redirect(`/${locale}/invite/${encodeURIComponent(token)}?error=invite`);
+  if (!email) redirect(`/${locale}/invite/${encodeURIComponent(token)}?error=signup&reason=invalid-email`);
+  if (password.length < 8) redirect(`/${locale}/invite/${encodeURIComponent(token)}?error=signup&reason=password-length`);
 
   const origin = getSiteOrigin();
   const supabase = await createClient();
@@ -190,7 +201,10 @@ export async function createAccountFromInvite(formData: FormData) {
     password,
     options: {emailRedirectTo: `${origin}/${locale}/auth/callback?invite=${encodeURIComponent(token)}`},
   });
-  if (error) redirect(`/${locale}/invite/${encodeURIComponent(token)}?error=signup`);
+  if (error) {
+    const reason = getSignupFailureReason(error.code);
+    redirect(`/${locale}/invite/${encodeURIComponent(token)}?error=signup&reason=${reason}`);
+  }
   if (!data.session) redirect(`/${locale}/invite/${encodeURIComponent(token)}?notice=check-email`);
 
   const {error: inviteError} = await supabase.rpc("accept_organization_invite", {invite_token: token});
