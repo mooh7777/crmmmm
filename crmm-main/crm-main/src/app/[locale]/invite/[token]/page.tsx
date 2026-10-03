@@ -29,7 +29,7 @@ export default async function SalesInvitePage({
         <h1>{text("انضم إلى فريق مسار", "Join the Masar team")}</h1>
         <p className="form-intro">{text("أنشئ حسابك أو سجّل الدخول لقبول الدعوة وفتح قائمة متابعات اليوم.", "Create an account or sign in to accept the invitation and open your Today follow-ups.")}</p>
         {inviteError && <p className="form-alert" role="alert">{text("رابط الدعوة غير صالح أو منتهي الصلاحية أو مستخدم من قبل.", "This invitation is invalid, expired, or already used.")}</p>}
-        {authError && <p className="form-alert" role="alert">{text("تعذر تسجيل الدخول بهذه البيانات.", "Those sign-in details could not be verified.")}</p>}
+        {authError && <p className="form-alert" role="alert">{text("تعذر تسجيل الدخول. لو دي أول مرة للشخص، استخدم نموذج حساب جديد بالأعلى. لو لديه حساب، تأكد من البريد الذي وصلته عليه الدعوة وكلمة المرور.", "Sign-in failed. If this is their first time, use the Create an account form above. Otherwise, check the invitation email address and password.")}</p>}
         {query.notice === "check-email" && <p className="form-success" role="status">{text("تحقق من بريدك لتأكيد الحساب وقبول الدعوة.", "Check your email to confirm your account and accept the invite.")}</p>}
 
         {user && <div className="invite-current-account">
