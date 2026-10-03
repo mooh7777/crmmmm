@@ -9,6 +9,10 @@ function json(body: Record<string, unknown>, status = 200) {
   return NextResponse.json(body, {status, headers: {"Cache-Control": "no-store"}});
 }
 
+function failure(code: string, status: number) {
+  return json({error: code}, status);
+}
+
 function siteOrigin(request: NextRequest) {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (configured) return configured.replace(/\/$/, "");
@@ -67,7 +71,7 @@ export async function POST(request: NextRequest) {
   try {
     admin = createAdminClient();
   } catch {
-    return json({error: "Billing is not configured"}, 503);
+    return failure("billing-service-key-missing", 503);
   }
 
   const [{data: organization}, {data: subscription}, {data: plan}] = await Promise.all([
@@ -75,8 +79,8 @@ export async function POST(request: NextRequest) {
     admin.from("subscriptions").select("*").eq("organization_id", organizationId).maybeSingle(),
     admin.from("billing_plans").select("*").eq("code", planCode).eq("active", true).maybeSingle(),
   ]);
-  if (!organization || !subscription || !plan) return json({error: "Billing plan is unavailable"}, 404);
-  if (subscription.currency === "SAR") return json({error: "SAR checkout is not available with TruePay yet"}, 409);
+  if (!organization || !subscription || !plan) return failure("billing-plan-unavailable", 404);
+  if (subscription.currency === "SAR") return failure("sar-checkout-unavailable", 409);
 
   const billingInterval = interval as BillingInterval;
   const currency = subscription.currency;
@@ -121,7 +125,10 @@ export async function POST(request: NextRequest) {
     period_end: periodEnd.toISOString(),
     status: "creating",
   }).select("id").single();
-  if (insertError || !payment) return json({error: "Could not create payment"}, 500);
+  if (insertError || !payment) {
+    console.error("Billing payment record could not be created", insertError?.code ?? "unknown");
+    return failure("payment-record-failed", 500);
+  }
 
   try {
     const provider = getPaymentProvider();
@@ -140,8 +147,13 @@ export async function POST(request: NextRequest) {
     }).eq("id", payment.id);
     if (updateError) throw new Error("Could not persist the provider payment session");
     return json({checkoutUrl: checkout.checkoutUrl, orderId, amount, currency});
-  } catch {
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : "Unknown TruePay checkout failure";
+    console.error("TruePay checkout failed", message);
     await admin.from("billing_payments").update({status: "failed"}).eq("id", payment.id);
-    return json({error: "Payment provider could not create a checkout session"}, 502);
+    if (message === "TRUEPAY_API_KEY is not configured") return failure("truepay-api-key-missing", 503);
+    if (message.includes("TruePay checkout request failed (401)") || message.includes("TruePay checkout request failed (403)")) return failure("truepay-credentials-rejected", 502);
+    if (message.includes("missing a payment URL or transaction id")) return failure("truepay-response-unexpected", 502);
+    return failure("truepay-checkout-failed", 502);
   }
 }

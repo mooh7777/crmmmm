@@ -43,10 +43,18 @@ export function BillingSettings({locale, organizationId, currency, plans, subscr
       });
       const result = await response.json() as {checkoutUrl?: string; error?: string};
       if (!response.ok || !result.checkoutUrl) {
-        const message = result.error ?? "checkout-failed";
-        setError(message.includes("SAR")
-          ? (arabic ? "الدفع بالريال سيتاح بعد ربط مزود دفع سعودي." : "SAR checkout will be available after a Saudi payment provider is connected.")
-          : (arabic ? "تعذر إنشاء رابط الدفع. حاول مرة أخرى أو تواصل مع الدعم." : "Could not create a checkout link. Retry or contact support."));
+        const messages: Record<string, [string, string]> = {
+          "sar-checkout-unavailable": ["الدفع بالريال غير متاح مع TruePay حاليًا.", "SAR checkout is not available with TruePay yet."],
+          "billing-service-key-missing": ["إعداد الفوترة ناقص في Vercel: أضف SUPABASE_SERVICE_ROLE_KEY.", "Billing setup is incomplete in Vercel: add SUPABASE_SERVICE_ROLE_KEY."],
+          "billing-plan-unavailable": ["تعذر قراءة الخطة من قاعدة البيانات. تأكد أن migration الفوترة مطبقة.", "Could not load billing plans. Confirm the billing migration was applied."],
+          "payment-record-failed": ["تعذر حفظ عملية الدفع. راجع صلاحيات قاعدة البيانات وإعداداتها.", "Could not save the payment record. Check database configuration and permissions."],
+          "truepay-api-key-missing": ["مفتاح TRUEPAY_API_KEY غير موجود في Vercel Production.", "TRUEPAY_API_KEY is missing from Vercel Production."],
+          "truepay-credentials-rejected": ["TruePay رفض المفتاح. راجع أن TRUEPAY_API_KEY الجديد صحيح ومفعّل.", "TruePay rejected the key. Check that the new TRUEPAY_API_KEY is valid and active."],
+          "truepay-response-unexpected": ["TruePay استقبل الطلب لكن ردّه لا يحتوي رابط دفع معروفًا. نحتاج شكل رد initiate من سجلات TruePay.", "TruePay responded without a recognized checkout URL. We need the initiate response shape from TruePay logs."],
+          "truepay-checkout-failed": ["فشل TruePay في إنشاء الرابط. راجع سجل Function في Vercel لمعرفة السبب.", "TruePay could not create the link. Check the Vercel Function log for the cause."],
+        };
+        const message = messages[result.error ?? ""] ?? ["تعذر إنشاء رابط الدفع. راجع سجلات Function في Vercel.", "Could not create the checkout link. Check the Vercel Function logs."];
+        setError(arabic ? message[0] : message[1]);
         return;
       }
       window.location.assign(result.checkoutUrl);
