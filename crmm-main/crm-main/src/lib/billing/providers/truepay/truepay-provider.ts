@@ -66,13 +66,16 @@ export class TruePayProvider implements PaymentProvider {
     if (!response.ok) throw new Error(`TruePay checkout request failed (${response.status})`);
     const body = objectValue(await response.json());
     const result = objectValue(body?.data) ?? body;
-    const checkoutUrl = stringValue(result?.payment_url, result?.checkout_url, result?.url);
+    const checkoutUrl = stringValue(result?.payment_url, result?.checkout_url, result?.redirect_url, result?.url);
     const providerTransactionId = stringValue(result?.transaction_id, result?.id);
     if (!checkoutUrl || !providerTransactionId) {
       throw new Error(`TruePay checkout response is missing a payment URL or transaction id; root fields: ${describeFields(body)}; data fields: ${describeFields(objectValue(body?.data))}`);
     }
     const parsedUrl = new URL(checkoutUrl);
     if (parsedUrl.protocol !== "https:") throw new Error("TruePay returned an insecure checkout URL");
+    if (parsedUrl.toString() === new URL(input.redirectUrl).toString()) {
+      throw new Error("TruePay checkout response only echoed the configured return URL");
+    }
     return {checkoutUrl: parsedUrl.toString(), providerTransactionId};
   }
 
