@@ -181,7 +181,7 @@ export async function createAccountFromInvite(formData: FormData) {
   const token = getText(formData, "inviteToken");
   const email = getText(formData, "email");
   const password = getRawText(formData, "password");
-  if (token.length < 32 || !email || password.length < 8) redirect(`/${locale}/invite/${encodeURIComponent(token)}?error=auth`);
+  if (token.length < 32 || !email || password.length < 8) redirect(`/${locale}/invite/${encodeURIComponent(token)}?error=signup`);
 
   const origin = getSiteOrigin();
   const supabase = await createClient();
@@ -190,7 +190,7 @@ export async function createAccountFromInvite(formData: FormData) {
     password,
     options: {emailRedirectTo: `${origin}/${locale}/auth/callback?invite=${encodeURIComponent(token)}`},
   });
-  if (error) redirect(`/${locale}/invite/${encodeURIComponent(token)}?error=auth`);
+  if (error) redirect(`/${locale}/invite/${encodeURIComponent(token)}?error=signup`);
   if (!data.session) redirect(`/${locale}/invite/${encodeURIComponent(token)}?notice=check-email`);
 
   const {error: inviteError} = await supabase.rpc("accept_organization_invite", {invite_token: token});

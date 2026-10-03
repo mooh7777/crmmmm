@@ -16,6 +16,7 @@ export default async function SalesInvitePage({
   const text = (arabic: string, english: string) => language === "ar" ? arabic : english;
   const inviteError = query.error === "invite";
   const authError = query.error === "auth";
+  const signupError = query.error === "signup";
 
   return (
     <main className="setup-screen">
@@ -30,6 +31,7 @@ export default async function SalesInvitePage({
         <p className="form-intro">{text("أنشئ حسابك أو سجّل الدخول لقبول الدعوة وفتح قائمة متابعات اليوم.", "Create an account or sign in to accept the invitation and open your Today follow-ups.")}</p>
         {inviteError && <p className="form-alert" role="alert">{text("رابط الدعوة غير صالح أو منتهي الصلاحية أو مستخدم من قبل.", "This invitation is invalid, expired, or already used.")}</p>}
         {authError && <p className="form-alert" role="alert">{text("تعذر تسجيل الدخول. لو دي أول مرة للشخص، استخدم نموذج حساب جديد بالأعلى. لو لديه حساب، تأكد من البريد الذي وصلته عليه الدعوة وكلمة المرور.", "Sign-in failed. If this is their first time, use the Create an account form above. Otherwise, check the invitation email address and password.")}</p>}
+        {signupError && <p className="form-alert" role="alert">{text("تعذر إنشاء الحساب. تأكد من البريد وكلمة المرور (٨ أحرف على الأقل). لو البريد مسجلًا من قبل، استخدم نموذج تسجيل الدخول بالأسفل.", "Could not create the account. Check the email and password (at least 8 characters). If this email already has an account, use the sign-in form below.")}</p>}
         {query.notice === "check-email" && <p className="form-success" role="status">{text("تحقق من بريدك لتأكيد الحساب وقبول الدعوة.", "Check your email to confirm your account and accept the invite.")}</p>}
 
         {user && <div className="invite-current-account">
