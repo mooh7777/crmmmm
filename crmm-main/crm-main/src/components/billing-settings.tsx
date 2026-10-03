@@ -41,7 +41,7 @@ export function BillingSettings({locale, organizationId, currency, plans, subscr
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({organizationId, planCode, interval, extraSeats, locale}),
       });
-      const result = await response.json() as {checkoutUrl?: string; error?: string};
+      const result = await response.json() as {checkoutUrl?: string; error?: string; details?: string};
       if (!response.ok || !result.checkoutUrl) {
         const messages: Record<string, [string, string]> = {
           "sar-checkout-unavailable": ["الدفع بالريال غير متاح مع TruePay حاليًا.", "SAR checkout is not available with TruePay yet."],
@@ -54,7 +54,8 @@ export function BillingSettings({locale, organizationId, currency, plans, subscr
           "truepay-checkout-failed": ["فشل TruePay في إنشاء الرابط. راجع سجل Function في Vercel لمعرفة السبب.", "TruePay could not create the link. Check the Vercel Function log for the cause."],
         };
         const message = messages[result.error ?? ""] ?? ["تعذر إنشاء رابط الدفع. راجع سجلات Function في Vercel.", "Could not create the checkout link. Check the Vercel Function logs."];
-        setError(arabic ? message[0] : message[1]);
+        const baseMessage = arabic ? message[0] : message[1];
+        setError(result.details ? `${baseMessage} (${result.details})` : baseMessage);
         return;
       }
       window.location.assign(result.checkoutUrl);

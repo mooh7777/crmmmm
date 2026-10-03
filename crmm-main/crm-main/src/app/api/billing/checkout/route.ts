@@ -153,7 +153,10 @@ export async function POST(request: NextRequest) {
     await admin.from("billing_payments").update({status: "failed"}).eq("id", payment.id);
     if (message === "TRUEPAY_API_KEY is not configured") return failure("truepay-api-key-missing", 503);
     if (message.includes("TruePay checkout request failed (401)") || message.includes("TruePay checkout request failed (403)")) return failure("truepay-credentials-rejected", 502);
-    if (message.includes("missing a payment URL or transaction id")) return failure("truepay-response-unexpected", 502);
+    if (message.includes("missing a payment URL or transaction id")) {
+      const details = message.split(";").slice(1).join(";").trim();
+      return json({error: "truepay-response-unexpected", details}, 502);
+    }
     return failure("truepay-checkout-failed", 502);
   }
 }

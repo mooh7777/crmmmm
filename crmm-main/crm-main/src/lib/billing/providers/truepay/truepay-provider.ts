@@ -20,6 +20,14 @@ function finiteNumber(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function describeFields(value: JsonObject | null) {
+  if (!value) return "none";
+  return Object.entries(value)
+    .map(([key, field]) => `${key}:${Array.isArray(field) ? "array" : field === null ? "null" : typeof field}`)
+    .sort()
+    .join(", ") || "none";
+}
+
 function getApiKey() {
   const apiKey = process.env.TRUEPAY_API_KEY?.trim();
   if (!apiKey) throw new Error("TRUEPAY_API_KEY is not configured");
@@ -61,7 +69,7 @@ export class TruePayProvider implements PaymentProvider {
     const checkoutUrl = stringValue(result?.payment_url, result?.checkout_url, result?.url);
     const providerTransactionId = stringValue(result?.transaction_id, result?.id);
     if (!checkoutUrl || !providerTransactionId) {
-      throw new Error("TruePay checkout response is missing a payment URL or transaction id");
+      throw new Error(`TruePay checkout response is missing a payment URL or transaction id; root fields: ${describeFields(body)}; data fields: ${describeFields(objectValue(body?.data))}`);
     }
     const parsedUrl = new URL(checkoutUrl);
     if (parsedUrl.protocol !== "https:") throw new Error("TruePay returned an insecure checkout URL");
