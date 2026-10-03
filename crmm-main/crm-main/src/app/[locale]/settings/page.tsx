@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {redirect} from "next/navigation";
 import {getTranslations} from "next-intl/server";
 import {createClient} from "@/lib/supabase/server";
@@ -57,6 +58,9 @@ export default async function OrganizationSettingsPage({
     <AppShell locale={locale as "ar" | "en"} organization={organization} page="settings" role={membership.role} userEmail={user.email ?? ""}>
       <div className="dashboard-content narrow-content">
           <div className="page-heading"><div><p className="eyebrow">{locale === "ar" ? "مساحة العمل" : "WORKSPACE"}</p><h1>{t("settings")}</h1></div></div>
+          <section className="settings-section">
+            <div className="section-heading"><div><h2>{locale === "ar" ? "الاشتراك والفوترة" : "Subscription and billing"}</h2><p>{locale === "ar" ? "إدارة الباقة، المقاعد، وتجديد الاشتراك." : "Manage your plan, seats, and renewal."}</p></div><Link className="primary-button compact-button" href={`/${locale}/settings/billing`}>{locale === "ar" ? "إدارة الاشتراك" : "Manage billing"}</Link></div>
+          </section>
           <section className="settings-section">
             <div className="section-heading"><div><h2>{locale === "ar" ? "الإعدادات الإقليمية" : "Regional settings"}</h2><p>{locale === "ar" ? "تُستخدم هذه القيم لتوقيت التنبيهات وعرض بيانات المبيعات." : "Used for reminder timing and sales data display."}</p></div></div>
             {query.error === "settings" && <p className="form-alert" role="alert">{messages("genericError")}</p>}

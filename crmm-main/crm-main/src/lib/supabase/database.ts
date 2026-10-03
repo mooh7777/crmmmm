@@ -48,6 +48,86 @@ export type PipelineStageRow = {
   created_at: string;
 };
 
+export type BillingPlanRow = {
+  code: "starter" | "growth" | "pro";
+  name: string;
+  included_seats: number;
+  leads_per_month: number;
+  monthly_price_egp: number;
+  monthly_price_sar: number;
+  extra_seat_price_egp: number;
+  extra_seat_price_sar: number;
+  features: Json;
+  active: boolean;
+  created_at: string;
+};
+
+export type SubscriptionRow = {
+  id: string;
+  organization_id: string;
+  plan: "starter" | "growth" | "pro" | "enterprise";
+  status: "trialing" | "active" | "past_due" | "canceled";
+  trial_started_at: string;
+  trial_ends_at: string;
+  current_period_start: string | null;
+  current_period_end: string | null;
+  past_due_since: string | null;
+  currency: "EGP" | "SAR";
+  billing_interval: "monthly" | "annual";
+  extra_seats: number;
+  founder_discount_percent: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type BillingPaymentRow = {
+  id: string;
+  organization_id: string;
+  subscription_id: string;
+  provider: string;
+  order_id: string;
+  provider_transaction_id: string | null;
+  plan_code: "starter" | "growth" | "pro";
+  billing_interval: "monthly" | "annual";
+  extra_seats: number;
+  amount: number;
+  currency: "EGP" | "SAR";
+  period_start: string;
+  period_end: string;
+  status: "creating" | "pending" | "paid" | "failed" | "refunded";
+  payment_url: string | null;
+  created_at: string;
+  paid_at: string | null;
+  updated_at: string;
+};
+
+export type PaymentEventRow = {
+  id: string;
+  provider: string;
+  event_id: string;
+  order_id: string;
+  transaction_id: string;
+  payment_status: "approved" | "pending" | "rejected";
+  amount: number;
+  currency: "EGP" | "SAR" | null;
+  raw_payload: string;
+  received_at: string;
+  processed_at: string | null;
+  processing_error: string | null;
+};
+
+export type BillingReminderRow = {
+  id: string;
+  subscription_id: string;
+  renewal_at: string;
+  days_before: 5 | 2 | 0;
+  payment_url: string | null;
+  state: "pending" | "sent" | "failed";
+  last_error: string | null;
+  created_at: string;
+  sent_at: string | null;
+};
+
 export type ManagerDashboardMetrics = {
   average_first_response_minutes: number | null;
   response_trend: Array<{date: string; average_minutes: number | null; responses: number}>;
@@ -155,6 +235,11 @@ export type Database = {
     Tables: {
       organizations: Table<OrganizationRow>;
       memberships: Table<MembershipRow>;
+      subscriptions: Table<SubscriptionRow>;
+      billing_plans: Table<BillingPlanRow>;
+      billing_payments: Table<BillingPaymentRow>;
+      payments_events: Table<PaymentEventRow>;
+      billing_reminders: Table<BillingReminderRow>;
       automation_rules: Table<AutomationRuleRow>;
       pipeline_stages: Table<PipelineStageRow>;
       leads: Table<LeadRow>;
@@ -290,6 +375,32 @@ export type Database = {
       get_org_role: {
         Args: {target_organization_id: string};
         Returns: OrganizationRole | null;
+      };
+      apply_truepay_payment_event: {
+        Args: {target_event_id: string};
+        Returns: string;
+      };
+      process_billing_renewals: {
+        Args: {run_at?: string};
+        Returns: number;
+      };
+      claim_billing_reminders: {
+        Args: {batch_size?: number};
+        Returns: Array<{
+          reminder_id: string;
+          subscription_id: string;
+          organization_id: string;
+          organization_name: string;
+          organization_language: string;
+          recipient_email: string;
+          payment_url: string;
+          renewal_at: string;
+          days_before: number;
+        }>;
+      };
+      finish_billing_reminder: {
+        Args: {target_reminder_id: string; delivery_error?: string | null};
+        Returns: undefined;
       };
     };
     Enums: {

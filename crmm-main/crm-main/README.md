@@ -31,7 +31,7 @@
 - اختبارات سير العمل: `supabase/tests/workflow.test.sql`، وتشغّل عبر `npm run test:workflow` بعد بدء Supabase.
 - اختبارات تقرير الأثر والبيانات التجريبية: `supabase/tests/impact-report.test.sql`، وتشغّل عبر `npm run test:impact` بعد بدء Supabase.
 - جميع الأوقات `timestamptz` بتوقيت UTC؛ المنطقة الزمنية تُطبّق عند عرض المواعيد وحساب مهام اليوم.
-- صلاحيات المستخدمين تُقرأ من `memberships` وتُطبّقها RLS. لا يُستخدم مفتاح `service_role` في Next.js.
+- صلاحيات المستخدمين تُقرأ من `memberships` وتُطبّقها RLS. لا يُستخدم مفتاح `service_role` في المتصفح؛ مسارات الفوترة server-only تستخدمه لمعالجة الدفع بعد التحقق من هوية المدير أو توقيع TruePay.
 - استدعاء `create_lead` ينشئ سجل التدقيق ومهمة المتابعة ضمن معاملة واحدة. يرسل `pg_cron` تذكيرًا عند الاستحقاق ويصعّد المهمة بعد المهلة المحددة إلى مدير المؤسسة.
 - يعمل عامل `workflow-worker` عبر `pg_cron` كل دقيقة؛ انشر الدالة واضبط `WORKFLOW_CRON_SECRET` ثم خزّن عنوان الدالة والسر نفسه في Vault عبر `configure_workflow_edge_runtime` بصلاحية `service_role`.
 - يلتقط العامل خط أساس العملاء خلال أول 7 أيام، ويحفظه بعد اكتمال مهلة 24 ساعة لعملاء آخر يوم. تُنسب النجاة للتذكير أو التصعيد الأخير السابق لأول استجابة فقط، ويصدر التقرير أسبوعيًا بعد اكتمال الأسبوع.
@@ -41,6 +41,19 @@
 supabase functions deploy workflow-worker
 supabase secrets set WORKFLOW_CRON_SECRET='<same-vault-secret>' RESEND_API_KEY='<resend-api-key>' IMPACT_REPORT_FROM_EMAIL='Masar Reports <reports@example.com>'
 ```
+
+- فعّل الفوترة بتطبيق migrations ثم انشر عامل التذكيرات. أنشئ نطاق إرسال موثقًا لدى Resend واضبط أسرار Edge Function:
+
+```bash
+supabase db push
+supabase functions deploy workflow-worker
+supabase secrets set BILLING_FROM_EMAIL='Masar Billing <billing@your-verified-domain.com>' BILLING_SITE_URL='https://mcr-sandy.vercel.app' BILLING_CRON_SECRET='<same-long-random-secret-as-vercel>'
+```
+
+- أضف في Vercel كمتغيرات server-only `SUPABASE_SERVICE_ROLE_KEY`, `TRUEPAY_API_KEY`, `TRUEPAY_SECRET_KEY`, و`BILLING_CRON_SECRET`، مع `PAYMENT_PROVIDER=truepay`. استخدم قيمة `BILLING_CRON_SECRET` نفسها في Vercel وSupabase Secrets؛ لا تضف أيًا من هذه المفاتيح إلى `NEXT_PUBLIC_*` أو Git. عيّن callback في TruePay إلى `https://mcr-sandy.vercel.app/api/billing/webhooks/truepay`.
+- الباقات والأسعار وحدودها تُدار من جدول `billing_plans`; السنة تحسب بسعر 10 أشهر. التجربة 14 يومًا دون بطاقة، وبعد انتهاء الفترة توجد مهلة 7 أيام قبل وضع القراءة فقط، ولا تُحذف بيانات المؤسسة.
+- TruePay مفعّل حاليًا لـ EGP فقط بحسب الوثائق المتاحة. لا يوجد auto-charge، وواجهة refund ترجع رفضًا صريحًا إلى أن يوثق المزود endpoint رسميًا. أسعار SAR موجودة في الكتالوج لكن checkout معطل حتى إضافة/تأكيد مزود يدعمها.
+- تذكيرات التجديد عند 5 و2 و0 أيام تصل إلى مالك المؤسسة عبر Resend. رابط الرسالة يفتح صفحة الفوترة حيث يبدأ المدير الدفع يدويًا.
 
 - لتفعيل تذكيرات المهام بالبريد وWeb Push، أنشئ مفاتيح VAPID عبر `npx --yes web-push@3.6.7 generate-vapid-keys --json`. أضف المفتاح العام بشكل دائم إلى `.env.local` ثم أعد تشغيل Next.js. أرسل بقية الأسرار وعنوان المرسل الموثق إلى Supabase:
 

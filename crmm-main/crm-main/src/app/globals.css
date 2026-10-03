@@ -2495,6 +2495,132 @@
   min-height: 72px;
 }
 
+.billing-settings {
+  display: grid;
+  gap: 20px;
+}
+
+.billing-current > p {
+  margin-block: 8px;
+}
+
+.billing-status {
+  align-self: center;
+  padding: 4px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  background: var(--surface-subtle);
+  color: var(--brand-strong);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.billing-status-past_due {
+  border-color: var(--warning);
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.billing-interval {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+
+.billing-interval button {
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--neutral-700);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.billing-interval .billing-interval-active {
+  background: var(--surface);
+  color: var(--brand-strong);
+  box-shadow: 0 1px 3px rgb(11 59 60 / 12%);
+}
+
+.billing-extra-seats {
+  max-width: 300px;
+  margin-block: 16px;
+}
+
+.billing-extra-seats input {
+  width: 100%;
+  min-height: 42px;
+  padding-inline: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.billing-extra-seats small {
+  color: var(--ink-muted);
+}
+
+.billing-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-block-start: 16px;
+}
+
+.billing-plan {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.billing-plan h3 {
+  margin: 4px 0 12px;
+  color: var(--brand-strong);
+  font-size: 21px;
+  overflow-wrap: anywhere;
+}
+
+.billing-plan h3 small {
+  color: var(--ink-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.billing-plan ul {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding-inline-start: 18px;
+  color: var(--neutral-700);
+  font-size: 12px;
+}
+
+.billing-plan > button {
+  width: 100%;
+  margin-block-start: auto;
+}
+
+.billing-discount {
+  margin: -7px 0 10px;
+  color: var(--success);
+  font-size: 11px;
+  font-weight: 600;
+}
+
 .workflow-settings-heading {
   margin-block-start: 18px;
   padding-block-start: 16px;
@@ -2954,6 +3080,10 @@
 }
 
 @media (max-width: 760px) {
+  .billing-plan-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .auth-screen {
     grid-template-columns: minmax(0, 1fr);
   }

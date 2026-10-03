@@ -13,7 +13,8 @@
     "test:workflow": "npx --yes supabase test db supabase/tests/workflow.test.sql",
     "test:sales-experience": "npx --yes supabase test db supabase/tests/sales-experience.test.sql",
     "test:onboarding": "npx --yes supabase test db supabase/tests/onboarding-invites.test.sql",
-    "test:impact": "npx --yes supabase test db supabase/tests/impact-report.test.sql"
+    "test:impact": "npx --yes supabase test db supabase/tests/impact-report.test.sql",
+    "test:billing": "npx --yes supabase test db supabase/tests/billing.test.sql"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
